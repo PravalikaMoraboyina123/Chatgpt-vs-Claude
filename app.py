@@ -13,6 +13,10 @@ load_dotenv()
 
 api_key = os.getenv("OPENROUTER_API_KEY")
 
+# Streamlit Cloud Support
+if not api_key:
+    api_key = st.secrets["OPENROUTER_API_KEY"]
+
 # -----------------------------------
 # OPENROUTER CLIENT
 # -----------------------------------
@@ -25,7 +29,7 @@ client = OpenAI(
 # PAGE CONFIG
 # -----------------------------------
 st.set_page_config(
-    page_title="ChatGPT vs Claude ",
+    page_title="ChatGPT vs Claude",
     page_icon="🤖",
     layout="wide"
 )
@@ -140,6 +144,29 @@ pre {
 
 code {
     color: #f8fafc !important;
+}
+
+/* Better Code Blocks */
+.codehilite {
+    background: #0f172a !important;
+    border-radius: 18px !important;
+    padding: 18px !important;
+    overflow-x: auto !important;
+    margin-top: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+.codehilite pre {
+    background: transparent !important;
+    color: #f8fafc !important;
+    border: none !important;
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+}
+
+.codehilite code {
+    color: #f8fafc !important;
+    background: transparent !important;
 }
 
 /* Scrollbar */
@@ -274,23 +301,23 @@ if prompt:
     full_prompt = f"""
 You are an advanced AI assistant.
 
-Answer like ChatGPT with:
+Rules:
+- Answer like ChatGPT
+- Use proper headings
+- Use bullet points
+- Use numbered steps
+- Use short readable paragraphs
+- Keep answers clean and modern
+- Use markdown formatting
 
-- Proper headings
-- Bullet points
-- Short paragraphs
-- Step-by-step explanations
-- Examples when needed
-- Combination of points + paragraph
-- Human readable formatting
-- Professional style
-
-If coding is asked:
+For coding:
+- Give clean professional code
 - Use proper markdown code blocks
-- Explain code clearly
-- Give copyable code
+- Add comments in code
+- Explain code step-by-step
+- Keep code properly formatted
 
-User Preference:
+Task:
 {preference}
 
 User Question:
@@ -300,7 +327,9 @@ Uploaded File Content:
 {file_content}
 """
 
+    # -----------------------------------
     # GPT RESPONSE
+    # -----------------------------------
     try:
 
         response1 = client.chat.completions.create(
@@ -311,25 +340,27 @@ Uploaded File Content:
                     "content": full_prompt
                 }
             ],
-            max_tokens=700,
+            max_tokens=1200,
             temperature=0.7
         )
 
         gpt_reply = response1.choices[0].message.content
 
-        st.session_state.gpt_history = [{
+        st.session_state.gpt_history.append({
             "question": prompt,
             "answer": gpt_reply
-        }]
+        })
 
     except Exception as e:
 
-        st.session_state.gpt_history = [{
+        st.session_state.gpt_history.append({
             "question": prompt,
             "answer": f"Error: {e}"
-        }]
+        })
 
+    # -----------------------------------
     # CLAUDE RESPONSE
+    # -----------------------------------
     try:
 
         response2 = client.chat.completions.create(
@@ -340,23 +371,23 @@ Uploaded File Content:
                     "content": full_prompt
                 }
             ],
-            max_tokens=700,
+            max_tokens=1200,
             temperature=0.7
         )
 
         claude_reply = response2.choices[0].message.content
 
-        st.session_state.claude_history = [{
+        st.session_state.claude_history.append({
             "question": prompt,
             "answer": claude_reply
-        }]
+        })
 
     except Exception as e:
 
-        st.session_state.claude_history = [{
+        st.session_state.claude_history.append({
             "question": prompt,
             "answer": f"Error: {e}"
-        }]
+        })
 
 # -----------------------------------
 # TWO COLUMNS
@@ -374,7 +405,11 @@ with col1:
 
         formatted_answer = markdown.markdown(
             chat["answer"],
-            extensions=["fenced_code"]
+            extensions=[
+                "fenced_code",
+                "codehilite",
+                "tables"
+            ]
         )
 
         chat_html += f"""
@@ -454,7 +489,11 @@ with col2:
 
         formatted_answer = markdown.markdown(
             chat["answer"],
-            extensions=["fenced_code"]
+            extensions=[
+                "fenced_code",
+                "codehilite",
+                "tables"
+            ]
         )
 
         chat_html += f"""
@@ -530,7 +569,11 @@ if st.session_state.selected_response != "":
 
     formatted_selected = markdown.markdown(
         st.session_state.selected_response,
-        extensions=["fenced_code"]
+        extensions=[
+            "fenced_code",
+            "codehilite",
+            "tables"
+        ]
     )
 
     st.markdown("## ⭐ Selected Best Response")
