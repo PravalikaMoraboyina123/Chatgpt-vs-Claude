@@ -7,6 +7,9 @@ The platform supports multiple use cases including general conversations, coding
 The project focuses on delivering a clean user experience similar to modern AI chat platforms. Responses are displayed in a professional chat interface with structured formatting, bullet points, headings, syntax-highlighted code blocks, and copyable code sections. The interface is optimized for readability and comparison between models.
 
 ---
+Website Link - https://chatgpt-vs-claude.streamlit.app/
+
+---
 
 # Features
 
